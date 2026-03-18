@@ -152,3 +152,53 @@ def test_divide_by_zero_api(client):
     # Assert that the 'error' field contains the correct error message
     assert "Cannot divide by zero!" in response.json()['error'], \
         f"Expected error message 'Cannot divide by zero!', got '{response.json()['error']}'"
+
+# ---------------------------------------------
+# Test Function: test_read_root
+# ---------------------------------------------
+def test_read_root(client):
+    """
+    Test that the root endpoint returns the HTML homepage successfully
+    """
+    response = client.get("/")
+    assert response.status_code == 200
+    assert "text/html" in response.headers["content-type"]
+
+
+# ---------------------------------------------
+# Test Function: test_add_missing_field
+# ---------------------------------------------
+def test_add_missing_field(client):
+    """
+    Test that missing required fields trigger a validation error (400)
+    """
+    response = client.post("/add", json={"a": 10})
+    assert response.status_code == 400
+    assert "error" in response.json()
+
+# ---------------------------------------------
+# Test Function: test_add_invalid_type
+# ---------------------------------------------
+def test_add_invalid_type(client):
+    """
+    Test that invalid data types trigger a validation error (400)
+    """
+    response = client.post("/add", json={"a": "abc", "b": 5})
+    assert response.status_code == 400
+    assert "error" in response.json()
+
+# ---------------------------------------------
+# Test Function: test_divide_internal_server_error
+# ---------------------------------------------
+def test_divide_internal_server_error(client, monkeypatch):
+    """
+    Test that an unexpected expectation in divide returns a 500 error 
+    """
+    def mock_divide(a, b):
+        raise Exception("unexpected failure")
+
+    monkeypatch.setattr("main.divide", mock_divide)
+
+    response = client.post("/divide", json={"a": 10, "b": 2})
+    assert response.status_code == 500
+    assert response.json() == {"error": "Internal Server Error"}
