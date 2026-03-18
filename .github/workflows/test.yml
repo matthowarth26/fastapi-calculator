@@ -18,8 +18,7 @@ jobs:
      - uses: actions/cache@v3
        with:
          path: |
-           venv
-           ~/.cache/pip
+          path: ~/.cache/pip
          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
          restore-keys: |
            ${{ runner.os }}-pip-
@@ -80,3 +79,5 @@ jobs:
          platforms: linux/amd64,linux/arm64
          cache-from: type=registry,ref=msh0626/601_module8:cache
          cache-to: type=inline,mode=max
+
+  
